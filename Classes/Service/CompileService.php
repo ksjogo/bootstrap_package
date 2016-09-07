@@ -33,6 +33,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class CompileService
 {
 
+    private static $outputPath = "typo3temp/assets/bootstrappackage/";
+
     /**
      * @param string $file
      * @return bool|string
@@ -45,15 +47,15 @@ class CompileService
         if ($pathParts['extension'] === 'less') {
             try {
                 $options = array(
-                    'cache_dir' => GeneralUtility::getFileAbsFileName('typo3temp/bootstrappackage')
+                    'cache_dir' => GeneralUtility::getFileAbsFileName(CompileService::$outputPath)
                 );
                 $settings = ($GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_bootstrappackage.']['settings.'] ?: array());
                 if ($settings['cssSourceMapping']) {
                     // enable source mapping
                     $optionsForSourceMap = array(
                         'sourceMap' => true,
-                        'sourceMapWriteTo' => GeneralUtility::getFileAbsFileName('typo3temp/bootstrappackage') . '/bootstrappackage.map',
-                        'sourceMapURL' => '/typo3temp/bootstrappackage/bootstrappackage.map',
+                        'sourceMapWriteTo' => GeneralUtility::getFileAbsFileName(CompileService::$outputPath) . '/bootstrappackage.map',
+                        'sourceMapURL' => CompileService::$outputPath . '/bootstrappackage.map',
                         'sourceMapBasepath' => PATH_site,
                         'sourceMapRootpath' => '/'
                     );
@@ -70,9 +72,9 @@ class CompileService
                     $variables = array();
                 }
                 $files = array();
-                $files[$file] = '../../' . str_replace(PATH_site, '', dirname($file)) . '/';
+                $files[$file] = '../../../' . str_replace(PATH_site, '', dirname($file)) . '/';
                 $compiledFile = \Less_Cache::Get($files, $options, $variables);
-                $file = 'typo3temp/bootstrappackage/' . $compiledFile;
+                $file = CompileService::$outputPath . $compiledFile;
 
                 return $file;
             } catch (\Exception $e) {
